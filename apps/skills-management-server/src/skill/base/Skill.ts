@@ -20,7 +20,6 @@ import {
 } from "class-validator";
 import { Type } from "class-transformer";
 import { Category } from "../../category/base/Category";
-import { SkillLevel } from "../../skillLevel/base/SkillLevel";
 
 @ObjectType()
 class Skill {
@@ -68,15 +67,6 @@ class Skill {
   @Type(() => Category)
   @IsOptional()
   category?: Category | null;
-
-  @ApiProperty({
-    required: false,
-    type: () => [SkillLevel],
-  })
-  @ValidateNested()
-  @Type(() => SkillLevel)
-  @IsOptional()
-  skillLevels?: Array<SkillLevel>;
 }
 
 export { Skill as Skill };

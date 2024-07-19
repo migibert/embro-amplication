@@ -16,7 +16,6 @@ import { Type } from "class-transformer";
 import { IsOptional, ValidateNested } from "class-validator";
 import { StringNullableFilter } from "../../util/StringNullableFilter";
 import { CategoryWhereUniqueInput } from "../../category/base/CategoryWhereUniqueInput";
-import { SkillLevelListRelationFilter } from "../../skillLevel/base/SkillLevelListRelationFilter";
 
 @InputType()
 class SkillWhereInput {
@@ -53,18 +52,6 @@ class SkillWhereInput {
     nullable: true,
   })
   category?: CategoryWhereUniqueInput;
-
-  @ApiProperty({
-    required: false,
-    type: () => SkillLevelListRelationFilter,
-  })
-  @ValidateNested()
-  @Type(() => SkillLevelListRelationFilter)
-  @IsOptional()
-  @Field(() => SkillLevelListRelationFilter, {
-    nullable: true,
-  })
-  skillLevels?: SkillLevelListRelationFilter;
 }
 
 export { SkillWhereInput as SkillWhereInput };

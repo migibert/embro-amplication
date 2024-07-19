@@ -20,8 +20,6 @@ import { SkillFindUniqueArgs } from "./SkillFindUniqueArgs";
 import { CreateSkillArgs } from "./CreateSkillArgs";
 import { UpdateSkillArgs } from "./UpdateSkillArgs";
 import { DeleteSkillArgs } from "./DeleteSkillArgs";
-import { SkillLevelFindManyArgs } from "../../skillLevel/base/SkillLevelFindManyArgs";
-import { SkillLevel } from "../../skillLevel/base/SkillLevel";
 import { Category } from "../../category/base/Category";
 import { SkillService } from "../skill.service";
 @graphql.Resolver(() => Skill)
@@ -110,20 +108,6 @@ export class SkillResolverBase {
       }
       throw error;
     }
-  }
-
-  @graphql.ResolveField(() => [SkillLevel], { name: "skillLevels" })
-  async findSkillLevels(
-    @graphql.Parent() parent: Skill,
-    @graphql.Args() args: SkillLevelFindManyArgs
-  ): Promise<SkillLevel[]> {
-    const results = await this.service.findSkillLevels(parent.id, args);
-
-    if (!results) {
-      return [];
-    }
-
-    return results;
   }
 
   @graphql.ResolveField(() => Category, {

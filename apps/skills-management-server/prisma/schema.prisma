@@ -7,22 +7,13 @@ generator client {
   provider = "prisma-client-js"
 }
 
-model Collaborator {
-  id          String       @id @default(cuid())
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
-  position    String?
-  skillLevels SkillLevel[]
-}
-
 model Skill {
-  id          String       @id @default(cuid())
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
-  name        String?
-  category    Category?    @relation(fields: [categoryId], references: [id])
-  categoryId  String?
-  skillLevels SkillLevel[]
+  id         String    @id @default(cuid())
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  name       String?
+  category   Category? @relation(fields: [categoryId], references: [id])
+  categoryId String?
 }
 
 model Category {
@@ -31,27 +22,4 @@ model Category {
   updatedAt DateTime @updatedAt
   name      String?
   skills    Skill[]
-}
-
-model User {
-  id        String   @id @default(cuid())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  firstName String?
-  lastName  String?
-  username  String   @unique
-  email     String?  @unique
-  password  String
-  roles     Json
-}
-
-model SkillLevel {
-  id             String        @id @default(cuid())
-  createdAt      DateTime      @default(now())
-  updatedAt      DateTime      @updatedAt
-  level          String?
-  skill          Skill?        @relation(fields: [skillId], references: [id])
-  skillId        String?
-  collaborator   Collaborator? @relation(fields: [collaboratorId], references: [id])
-  collaboratorId String?
 }

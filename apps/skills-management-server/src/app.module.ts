@@ -1,9 +1,6 @@
 import { Module } from "@nestjs/common";
-import { CollaboratorModule } from "./collaborator/collaborator.module";
 import { SkillModule } from "./skill/skill.module";
 import { CategoryModule } from "./category/category.module";
-import { UserModule } from "./user/user.module";
-import { SkillLevelModule } from "./skillLevel/skillLevel.module";
 import { HealthModule } from "./health/health.module";
 import { PrismaModule } from "./prisma/prisma.module";
 import { SecretsManagerModule } from "./providers/secrets/secretsManager.module";
@@ -16,11 +13,8 @@ import { ApolloDriver, ApolloDriverConfig } from "@nestjs/apollo";
 @Module({
   controllers: [],
   imports: [
-    CollaboratorModule,
     SkillModule,
     CategoryModule,
-    UserModule,
-    SkillLevelModule,
     HealthModule,
     PrismaModule,
     SecretsManagerModule,

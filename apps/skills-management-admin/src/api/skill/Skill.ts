@@ -1,5 +1,4 @@
 import { Category } from "../category/Category";
-import { SkillLevel } from "../skillLevel/SkillLevel";
 
 export type Skill = {
   id: string;
@@ -7,5 +6,4 @@ export type Skill = {
   updatedAt: Date;
   name: string | null;
   category?: Category | null;
-  skillLevels?: Array<SkillLevel>;
 };

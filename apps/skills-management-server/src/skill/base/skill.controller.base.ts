@@ -22,9 +22,6 @@ import { Skill } from "./Skill";
 import { SkillFindManyArgs } from "./SkillFindManyArgs";
 import { SkillWhereUniqueInput } from "./SkillWhereUniqueInput";
 import { SkillUpdateInput } from "./SkillUpdateInput";
-import { SkillLevelFindManyArgs } from "../../skillLevel/base/SkillLevelFindManyArgs";
-import { SkillLevel } from "../../skillLevel/base/SkillLevel";
-import { SkillLevelWhereUniqueInput } from "../../skillLevel/base/SkillLevelWhereUniqueInput";
 
 export class SkillControllerBase {
   constructor(protected readonly service: SkillService) {}
@@ -179,92 +176,5 @@ export class SkillControllerBase {
       }
       throw error;
     }
-  }
-
-  @common.Get("/:id/skillLevels")
-  @ApiNestedQuery(SkillLevelFindManyArgs)
-  async findSkillLevels(
-    @common.Req() request: Request,
-    @common.Param() params: SkillWhereUniqueInput
-  ): Promise<SkillLevel[]> {
-    const query = plainToClass(SkillLevelFindManyArgs, request.query);
-    const results = await this.service.findSkillLevels(params.id, {
-      ...query,
-      select: {
-        id: true,
-        createdAt: true,
-        updatedAt: true,
-        level: true,
-
-        skill: {
-          select: {
-            id: true,
-          },
-        },
-
-        collaborator: {
-          select: {
-            id: true,
-          },
-        },
-      },
-    });
-    if (results === null) {
-      throw new errors.NotFoundException(
-        `No resource was found for ${JSON.stringify(params)}`
-      );
-    }
-    return results;
-  }
-
-  @common.Post("/:id/skillLevels")
-  async connectSkillLevels(
-    @common.Param() params: SkillWhereUniqueInput,
-    @common.Body() body: SkillLevelWhereUniqueInput[]
-  ): Promise<void> {
-    const data = {
-      skillLevels: {
-        connect: body,
-      },
-    };
-    await this.service.updateSkill({
-      where: params,
-      data,
-      select: { id: true },
-    });
-  }
-
-  @common.Patch("/:id/skillLevels")
-  async updateSkillLevels(
-    @common.Param() params: SkillWhereUniqueInput,
-    @common.Body() body: SkillLevelWhereUniqueInput[]
-  ): Promise<void> {
-    const data = {
-      skillLevels: {
-        set: body,
-      },
-    };
-    await this.service.updateSkill({
-      where: params,
-      data,
-      select: { id: true },
-    });
-  }
-
-  @common.Delete("/:id/skillLevels")
-  async disconnectSkillLevels(
-    @common.Param() params: SkillWhereUniqueInput,
-    @common.Body() body: SkillLevelWhereUniqueInput[]
-  ): Promise<void> {
-    const data = {
-      skillLevels: {
-        disconnect: body,
-      },
-    };
-    await this.service.updateSkill({
-      where: params,
-      data,
-      select: { id: true },
-    });
   }
 }
