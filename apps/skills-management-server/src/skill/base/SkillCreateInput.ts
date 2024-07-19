@@ -19,7 +19,6 @@ import {
 } from "class-validator";
 import { CategoryWhereUniqueInput } from "../../category/base/CategoryWhereUniqueInput";
 import { Type } from "class-transformer";
-import { SkillLevelCreateNestedManyWithoutSkillsInput } from "./SkillLevelCreateNestedManyWithoutSkillsInput";
 
 @InputType()
 class SkillCreateInput {
@@ -46,18 +45,6 @@ class SkillCreateInput {
     nullable: true,
   })
   category?: CategoryWhereUniqueInput | null;
-
-  @ApiProperty({
-    required: false,
-    type: () => SkillLevelCreateNestedManyWithoutSkillsInput,
-  })
-  @ValidateNested()
-  @Type(() => SkillLevelCreateNestedManyWithoutSkillsInput)
-  @IsOptional()
-  @Field(() => SkillLevelCreateNestedManyWithoutSkillsInput, {
-    nullable: true,
-  })
-  skillLevels?: SkillLevelCreateNestedManyWithoutSkillsInput;
 }
 
 export { SkillCreateInput as SkillCreateInput };

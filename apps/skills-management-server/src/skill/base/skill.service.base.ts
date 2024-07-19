@@ -10,11 +10,9 @@ https://docs.amplication.com/how-to/custom-code
 ------------------------------------------------------------------------------
   */
 import { PrismaService } from "../../prisma/prisma.service";
-
 import {
   Prisma,
   Skill as PrismaSkill,
-  SkillLevel as PrismaSkillLevel,
   Category as PrismaCategory,
 } from "@prisma/client";
 
@@ -39,17 +37,6 @@ export class SkillServiceBase {
   }
   async deleteSkill(args: Prisma.SkillDeleteArgs): Promise<PrismaSkill> {
     return this.prisma.skill.delete(args);
-  }
-
-  async findSkillLevels(
-    parentId: string,
-    args: Prisma.SkillLevelFindManyArgs
-  ): Promise<PrismaSkillLevel[]> {
-    return this.prisma.skill
-      .findUniqueOrThrow({
-        where: { id: parentId },
-      })
-      .skillLevels(args);
   }
 
   async getCategory(parentId: string): Promise<PrismaCategory | null> {

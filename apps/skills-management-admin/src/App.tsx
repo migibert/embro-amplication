@@ -5,10 +5,6 @@ import { theme } from "./theme/theme";
 import Login from "./Login";
 import "./App.scss";
 import Dashboard from "./pages/Dashboard";
-import { CollaboratorList } from "./collaborator/CollaboratorList";
-import { CollaboratorCreate } from "./collaborator/CollaboratorCreate";
-import { CollaboratorEdit } from "./collaborator/CollaboratorEdit";
-import { CollaboratorShow } from "./collaborator/CollaboratorShow";
 import { SkillList } from "./skill/SkillList";
 import { SkillCreate } from "./skill/SkillCreate";
 import { SkillEdit } from "./skill/SkillEdit";
@@ -17,14 +13,6 @@ import { CategoryList } from "./category/CategoryList";
 import { CategoryCreate } from "./category/CategoryCreate";
 import { CategoryEdit } from "./category/CategoryEdit";
 import { CategoryShow } from "./category/CategoryShow";
-import { UserList } from "./user/UserList";
-import { UserCreate } from "./user/UserCreate";
-import { UserEdit } from "./user/UserEdit";
-import { UserShow } from "./user/UserShow";
-import { SkillLevelList } from "./skillLevel/SkillLevelList";
-import { SkillLevelCreate } from "./skillLevel/SkillLevelCreate";
-import { SkillLevelEdit } from "./skillLevel/SkillLevelEdit";
-import { SkillLevelShow } from "./skillLevel/SkillLevelShow";
 import { jwtAuthProvider } from "./auth-provider/ra-auth-jwt";
 
 const App = (): React.ReactElement => {
@@ -52,13 +40,6 @@ const App = (): React.ReactElement => {
         loginPage={Login}
       >
         <Resource
-          name="Collaborator"
-          list={CollaboratorList}
-          edit={CollaboratorEdit}
-          create={CollaboratorCreate}
-          show={CollaboratorShow}
-        />
-        <Resource
           name="Skill"
           list={SkillList}
           edit={SkillEdit}
@@ -71,20 +52,6 @@ const App = (): React.ReactElement => {
           edit={CategoryEdit}
           create={CategoryCreate}
           show={CategoryShow}
-        />
-        <Resource
-          name="User"
-          list={UserList}
-          edit={UserEdit}
-          create={UserCreate}
-          show={UserShow}
-        />
-        <Resource
-          name="SkillLevel"
-          list={SkillLevelList}
-          edit={SkillLevelEdit}
-          create={SkillLevelCreate}
-          show={SkillLevelShow}
         />
       </Admin>
     </div>
