@@ -10,7 +10,13 @@ https://docs.amplication.com/how-to/custom-code
 ------------------------------------------------------------------------------
   */
 import { PrismaService } from "../../prisma/prisma.service";
-import { Prisma, Team as PrismaTeam } from "@prisma/client";
+
+import {
+  Prisma,
+  Team as PrismaTeam,
+  Collaborator as PrismaCollaborator,
+  TeamSkill as PrismaTeamSkill,
+} from "@prisma/client";
 
 export class TeamServiceBase {
   constructor(protected readonly prisma: PrismaService) {}
@@ -33,5 +39,27 @@ export class TeamServiceBase {
   }
   async deleteTeam(args: Prisma.TeamDeleteArgs): Promise<PrismaTeam> {
     return this.prisma.team.delete(args);
+  }
+
+  async findCollaborators(
+    parentId: string,
+    args: Prisma.CollaboratorFindManyArgs
+  ): Promise<PrismaCollaborator[]> {
+    return this.prisma.team
+      .findUniqueOrThrow({
+        where: { id: parentId },
+      })
+      .collaborators(args);
+  }
+
+  async findTeamSkills(
+    parentId: string,
+    args: Prisma.TeamSkillFindManyArgs
+  ): Promise<PrismaTeamSkill[]> {
+    return this.prisma.team
+      .findUniqueOrThrow({
+        where: { id: parentId },
+      })
+      .teamSkills(args);
   }
 }

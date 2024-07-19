@@ -13,8 +13,10 @@ import { InputType, Field } from "@nestjs/graphql";
 import { ApiProperty } from "@nestjs/swagger";
 import { StringFilter } from "../../util/StringFilter";
 import { Type } from "class-transformer";
-import { IsOptional } from "class-validator";
+import { IsOptional, ValidateNested } from "class-validator";
 import { StringNullableFilter } from "../../util/StringNullableFilter";
+import { CollaboratorListRelationFilter } from "../../collaborator/base/CollaboratorListRelationFilter";
+import { TeamSkillListRelationFilter } from "../../teamSkill/base/TeamSkillListRelationFilter";
 
 @InputType()
 class TeamWhereInput {
@@ -39,6 +41,30 @@ class TeamWhereInput {
     nullable: true,
   })
   name?: StringNullableFilter;
+
+  @ApiProperty({
+    required: false,
+    type: () => CollaboratorListRelationFilter,
+  })
+  @ValidateNested()
+  @Type(() => CollaboratorListRelationFilter)
+  @IsOptional()
+  @Field(() => CollaboratorListRelationFilter, {
+    nullable: true,
+  })
+  collaborators?: CollaboratorListRelationFilter;
+
+  @ApiProperty({
+    required: false,
+    type: () => TeamSkillListRelationFilter,
+  })
+  @ValidateNested()
+  @Type(() => TeamSkillListRelationFilter)
+  @IsOptional()
+  @Field(() => TeamSkillListRelationFilter, {
+    nullable: true,
+  })
+  teamSkills?: TeamSkillListRelationFilter;
 }
 
 export { TeamWhereInput as TeamWhereInput };

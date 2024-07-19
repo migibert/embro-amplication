@@ -11,7 +11,15 @@ https://docs.amplication.com/how-to/custom-code
   */
 import { InputType, Field } from "@nestjs/graphql";
 import { ApiProperty } from "@nestjs/swagger";
-import { IsString, MaxLength, IsOptional } from "class-validator";
+import {
+  IsString,
+  MaxLength,
+  IsOptional,
+  ValidateNested,
+} from "class-validator";
+import { CollaboratorUpdateManyWithoutTeamsInput } from "./CollaboratorUpdateManyWithoutTeamsInput";
+import { Type } from "class-transformer";
+import { TeamSkillUpdateManyWithoutTeamsInput } from "./TeamSkillUpdateManyWithoutTeamsInput";
 
 @InputType()
 class TeamUpdateInput {
@@ -26,6 +34,30 @@ class TeamUpdateInput {
     nullable: true,
   })
   name?: string | null;
+
+  @ApiProperty({
+    required: false,
+    type: () => CollaboratorUpdateManyWithoutTeamsInput,
+  })
+  @ValidateNested()
+  @Type(() => CollaboratorUpdateManyWithoutTeamsInput)
+  @IsOptional()
+  @Field(() => CollaboratorUpdateManyWithoutTeamsInput, {
+    nullable: true,
+  })
+  collaborators?: CollaboratorUpdateManyWithoutTeamsInput;
+
+  @ApiProperty({
+    required: false,
+    type: () => TeamSkillUpdateManyWithoutTeamsInput,
+  })
+  @ValidateNested()
+  @Type(() => TeamSkillUpdateManyWithoutTeamsInput)
+  @IsOptional()
+  @Field(() => TeamSkillUpdateManyWithoutTeamsInput, {
+    nullable: true,
+  })
+  teamSkills?: TeamSkillUpdateManyWithoutTeamsInput;
 }
 
 export { TeamUpdateInput as TeamUpdateInput };

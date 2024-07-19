@@ -20,6 +20,10 @@ import { TeamFindUniqueArgs } from "./TeamFindUniqueArgs";
 import { CreateTeamArgs } from "./CreateTeamArgs";
 import { UpdateTeamArgs } from "./UpdateTeamArgs";
 import { DeleteTeamArgs } from "./DeleteTeamArgs";
+import { CollaboratorFindManyArgs } from "../../collaborator/base/CollaboratorFindManyArgs";
+import { Collaborator } from "../../collaborator/base/Collaborator";
+import { TeamSkillFindManyArgs } from "../../teamSkill/base/TeamSkillFindManyArgs";
+import { TeamSkill } from "../../teamSkill/base/TeamSkill";
 import { TeamService } from "../team.service";
 @graphql.Resolver(() => Team)
 export class TeamResolverBase {
@@ -85,5 +89,33 @@ export class TeamResolverBase {
       }
       throw error;
     }
+  }
+
+  @graphql.ResolveField(() => [Collaborator], { name: "collaborators" })
+  async findCollaborators(
+    @graphql.Parent() parent: Team,
+    @graphql.Args() args: CollaboratorFindManyArgs
+  ): Promise<Collaborator[]> {
+    const results = await this.service.findCollaborators(parent.id, args);
+
+    if (!results) {
+      return [];
+    }
+
+    return results;
+  }
+
+  @graphql.ResolveField(() => [TeamSkill], { name: "teamSkills" })
+  async findTeamSkills(
+    @graphql.Parent() parent: Team,
+    @graphql.Args() args: TeamSkillFindManyArgs
+  ): Promise<TeamSkill[]> {
+    const results = await this.service.findTeamSkills(parent.id, args);
+
+    if (!results) {
+      return [];
+    }
+
+    return results;
   }
 }

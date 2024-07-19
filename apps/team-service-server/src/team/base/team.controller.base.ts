@@ -22,6 +22,12 @@ import { Team } from "./Team";
 import { TeamFindManyArgs } from "./TeamFindManyArgs";
 import { TeamWhereUniqueInput } from "./TeamWhereUniqueInput";
 import { TeamUpdateInput } from "./TeamUpdateInput";
+import { CollaboratorFindManyArgs } from "../../collaborator/base/CollaboratorFindManyArgs";
+import { Collaborator } from "../../collaborator/base/Collaborator";
+import { CollaboratorWhereUniqueInput } from "../../collaborator/base/CollaboratorWhereUniqueInput";
+import { TeamSkillFindManyArgs } from "../../teamSkill/base/TeamSkillFindManyArgs";
+import { TeamSkill } from "../../teamSkill/base/TeamSkill";
+import { TeamSkillWhereUniqueInput } from "../../teamSkill/base/TeamSkillWhereUniqueInput";
 
 export class TeamControllerBase {
   constructor(protected readonly service: TeamService) {}
@@ -130,5 +136,172 @@ export class TeamControllerBase {
       }
       throw error;
     }
+  }
+
+  @common.Get("/:id/collaborators")
+  @ApiNestedQuery(CollaboratorFindManyArgs)
+  async findCollaborators(
+    @common.Req() request: Request,
+    @common.Param() params: TeamWhereUniqueInput
+  ): Promise<Collaborator[]> {
+    const query = plainToClass(CollaboratorFindManyArgs, request.query);
+    const results = await this.service.findCollaborators(params.id, {
+      ...query,
+      select: {
+        id: true,
+        createdAt: true,
+        updatedAt: true,
+        firstname: true,
+        lastname: true,
+        entrydate: true,
+        position: true,
+        birthdate: true,
+
+        team: {
+          select: {
+            id: true,
+          },
+        },
+      },
+    });
+    if (results === null) {
+      throw new errors.NotFoundException(
+        `No resource was found for ${JSON.stringify(params)}`
+      );
+    }
+    return results;
+  }
+
+  @common.Post("/:id/collaborators")
+  async connectCollaborators(
+    @common.Param() params: TeamWhereUniqueInput,
+    @common.Body() body: CollaboratorWhereUniqueInput[]
+  ): Promise<void> {
+    const data = {
+      collaborators: {
+        connect: body,
+      },
+    };
+    await this.service.updateTeam({
+      where: params,
+      data,
+      select: { id: true },
+    });
+  }
+
+  @common.Patch("/:id/collaborators")
+  async updateCollaborators(
+    @common.Param() params: TeamWhereUniqueInput,
+    @common.Body() body: CollaboratorWhereUniqueInput[]
+  ): Promise<void> {
+    const data = {
+      collaborators: {
+        set: body,
+      },
+    };
+    await this.service.updateTeam({
+      where: params,
+      data,
+      select: { id: true },
+    });
+  }
+
+  @common.Delete("/:id/collaborators")
+  async disconnectCollaborators(
+    @common.Param() params: TeamWhereUniqueInput,
+    @common.Body() body: CollaboratorWhereUniqueInput[]
+  ): Promise<void> {
+    const data = {
+      collaborators: {
+        disconnect: body,
+      },
+    };
+    await this.service.updateTeam({
+      where: params,
+      data,
+      select: { id: true },
+    });
+  }
+
+  @common.Get("/:id/teamSkills")
+  @ApiNestedQuery(TeamSkillFindManyArgs)
+  async findTeamSkills(
+    @common.Req() request: Request,
+    @common.Param() params: TeamWhereUniqueInput
+  ): Promise<TeamSkill[]> {
+    const query = plainToClass(TeamSkillFindManyArgs, request.query);
+    const results = await this.service.findTeamSkills(params.id, {
+      ...query,
+      select: {
+        id: true,
+        createdAt: true,
+        updatedAt: true,
+        skill: true,
+        proficiency: true,
+
+        team: {
+          select: {
+            id: true,
+          },
+        },
+      },
+    });
+    if (results === null) {
+      throw new errors.NotFoundException(
+        `No resource was found for ${JSON.stringify(params)}`
+      );
+    }
+    return results;
+  }
+
+  @common.Post("/:id/teamSkills")
+  async connectTeamSkills(
+    @common.Param() params: TeamWhereUniqueInput,
+    @common.Body() body: TeamSkillWhereUniqueInput[]
+  ): Promise<void> {
+    const data = {
+      teamSkills: {
+        connect: body,
+      },
+    };
+    await this.service.updateTeam({
+      where: params,
+      data,
+      select: { id: true },
+    });
+  }
+
+  @common.Patch("/:id/teamSkills")
+  async updateTeamSkills(
+    @common.Param() params: TeamWhereUniqueInput,
+    @common.Body() body: TeamSkillWhereUniqueInput[]
+  ): Promise<void> {
+    const data = {
+      teamSkills: {
+        set: body,
+      },
+    };
+    await this.service.updateTeam({
+      where: params,
+      data,
+      select: { id: true },
+    });
+  }
+
+  @common.Delete("/:id/teamSkills")
+  async disconnectTeamSkills(
+    @common.Param() params: TeamWhereUniqueInput,
+    @common.Body() body: TeamSkillWhereUniqueInput[]
+  ): Promise<void> {
+    const data = {
+      teamSkills: {
+        disconnect: body,
+      },
+    };
+    await this.service.updateTeam({
+      where: params,
+      data,
+      select: { id: true },
+    });
   }
 }
