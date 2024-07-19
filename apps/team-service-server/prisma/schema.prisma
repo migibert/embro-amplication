@@ -1,0 +1,51 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DB_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Team {
+  id            String         @id @default(cuid())
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  name          String?
+  collaborators Collaborator[]
+  teamSkills    TeamSkill[]
+}
+
+model Collaborator {
+  id                 String              @id @default(cuid())
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  firstname          String?
+  lastname           String?
+  entrydate          DateTime?
+  position           String?
+  birthdate          DateTime?
+  team               Team?               @relation(fields: [teamId], references: [id])
+  teamId             String?
+  collaboratorSkills CollaboratorSkill[]
+}
+
+model CollaboratorSkill {
+  id             String        @id @default(cuid())
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  proficiency    Int?
+  skill          String?
+  collaborator   Collaborator? @relation(fields: [collaboratorId], references: [id])
+  collaboratorId String?
+}
+
+model TeamSkill {
+  id          String   @id @default(cuid())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  skill       String?
+  proficiency Int?
+  team        Team?    @relation(fields: [teamId], references: [id])
+  teamId      String?
+}
