@@ -16,7 +16,11 @@ import * as errors from "../../errors";
 import { Request } from "express";
 import { plainToClass } from "class-transformer";
 import { ApiNestedQuery } from "../../decorators/api-nested-query.decorator";
+import * as nestAccessControl from "nest-access-control";
+import * as defaultAuthGuard from "../../auth/defaultAuth.guard";
 import { CollaboratorService } from "../collaborator.service";
+import { AclValidateRequestInterceptor } from "../../interceptors/aclValidateRequest.interceptor";
+import { AclFilterResponseInterceptor } from "../../interceptors/aclFilterResponse.interceptor";
 import { CollaboratorCreateInput } from "./CollaboratorCreateInput";
 import { Collaborator } from "./Collaborator";
 import { CollaboratorFindManyArgs } from "./CollaboratorFindManyArgs";
@@ -26,10 +30,24 @@ import { CollaboratorSkillFindManyArgs } from "../../collaboratorSkill/base/Coll
 import { CollaboratorSkill } from "../../collaboratorSkill/base/CollaboratorSkill";
 import { CollaboratorSkillWhereUniqueInput } from "../../collaboratorSkill/base/CollaboratorSkillWhereUniqueInput";
 
+@swagger.ApiBearerAuth()
+@common.UseGuards(defaultAuthGuard.DefaultAuthGuard, nestAccessControl.ACGuard)
 export class CollaboratorControllerBase {
-  constructor(protected readonly service: CollaboratorService) {}
+  constructor(
+    protected readonly service: CollaboratorService,
+    protected readonly rolesBuilder: nestAccessControl.RolesBuilder
+  ) {}
+  @common.UseInterceptors(AclValidateRequestInterceptor)
   @common.Post()
   @swagger.ApiCreatedResponse({ type: Collaborator })
+  @nestAccessControl.UseRoles({
+    resource: "Collaborator",
+    action: "create",
+    possession: "any",
+  })
+  @swagger.ApiForbiddenResponse({
+    type: errors.ForbiddenException,
+  })
   async createCollaborator(
     @common.Body() data: CollaboratorCreateInput
   ): Promise<Collaborator> {
@@ -62,9 +80,18 @@ export class CollaboratorControllerBase {
     });
   }
 
+  @common.UseInterceptors(AclFilterResponseInterceptor)
   @common.Get()
   @swagger.ApiOkResponse({ type: [Collaborator] })
   @ApiNestedQuery(CollaboratorFindManyArgs)
+  @nestAccessControl.UseRoles({
+    resource: "Collaborator",
+    action: "read",
+    possession: "any",
+  })
+  @swagger.ApiForbiddenResponse({
+    type: errors.ForbiddenException,
+  })
   async collaborators(@common.Req() request: Request): Promise<Collaborator[]> {
     const args = plainToClass(CollaboratorFindManyArgs, request.query);
     return this.service.collaborators({
@@ -88,9 +115,18 @@ export class CollaboratorControllerBase {
     });
   }
 
+  @common.UseInterceptors(AclFilterResponseInterceptor)
   @common.Get("/:id")
   @swagger.ApiOkResponse({ type: Collaborator })
   @swagger.ApiNotFoundResponse({ type: errors.NotFoundException })
+  @nestAccessControl.UseRoles({
+    resource: "Collaborator",
+    action: "read",
+    possession: "own",
+  })
+  @swagger.ApiForbiddenResponse({
+    type: errors.ForbiddenException,
+  })
   async collaborator(
     @common.Param() params: CollaboratorWhereUniqueInput
   ): Promise<Collaborator | null> {
@@ -121,9 +157,18 @@ export class CollaboratorControllerBase {
     return result;
   }
 
+  @common.UseInterceptors(AclValidateRequestInterceptor)
   @common.Patch("/:id")
   @swagger.ApiOkResponse({ type: Collaborator })
   @swagger.ApiNotFoundResponse({ type: errors.NotFoundException })
+  @nestAccessControl.UseRoles({
+    resource: "Collaborator",
+    action: "update",
+    possession: "any",
+  })
+  @swagger.ApiForbiddenResponse({
+    type: errors.ForbiddenException,
+  })
   async updateCollaborator(
     @common.Param() params: CollaboratorWhereUniqueInput,
     @common.Body() data: CollaboratorUpdateInput
@@ -170,6 +215,14 @@ export class CollaboratorControllerBase {
   @common.Delete("/:id")
   @swagger.ApiOkResponse({ type: Collaborator })
   @swagger.ApiNotFoundResponse({ type: errors.NotFoundException })
+  @nestAccessControl.UseRoles({
+    resource: "Collaborator",
+    action: "delete",
+    possession: "any",
+  })
+  @swagger.ApiForbiddenResponse({
+    type: errors.ForbiddenException,
+  })
   async deleteCollaborator(
     @common.Param() params: CollaboratorWhereUniqueInput
   ): Promise<Collaborator | null> {
@@ -203,8 +256,14 @@ export class CollaboratorControllerBase {
     }
   }
 
+  @common.UseInterceptors(AclFilterResponseInterceptor)
   @common.Get("/:id/collaboratorSkills")
   @ApiNestedQuery(CollaboratorSkillFindManyArgs)
+  @nestAccessControl.UseRoles({
+    resource: "CollaboratorSkill",
+    action: "read",
+    possession: "any",
+  })
   async findCollaboratorSkills(
     @common.Req() request: Request,
     @common.Param() params: CollaboratorWhereUniqueInput
@@ -235,6 +294,11 @@ export class CollaboratorControllerBase {
   }
 
   @common.Post("/:id/collaboratorSkills")
+  @nestAccessControl.UseRoles({
+    resource: "Collaborator",
+    action: "update",
+    possession: "any",
+  })
   async connectCollaboratorSkills(
     @common.Param() params: CollaboratorWhereUniqueInput,
     @common.Body() body: CollaboratorSkillWhereUniqueInput[]
@@ -252,6 +316,11 @@ export class CollaboratorControllerBase {
   }
 
   @common.Patch("/:id/collaboratorSkills")
+  @nestAccessControl.UseRoles({
+    resource: "Collaborator",
+    action: "update",
+    possession: "any",
+  })
   async updateCollaboratorSkills(
     @common.Param() params: CollaboratorWhereUniqueInput,
     @common.Body() body: CollaboratorSkillWhereUniqueInput[]
@@ -269,6 +338,11 @@ export class CollaboratorControllerBase {
   }
 
   @common.Delete("/:id/collaboratorSkills")
+  @nestAccessControl.UseRoles({
+    resource: "Collaborator",
+    action: "update",
+    possession: "any",
+  })
   async disconnectCollaboratorSkills(
     @common.Param() params: CollaboratorWhereUniqueInput,
     @common.Body() body: CollaboratorSkillWhereUniqueInput[]

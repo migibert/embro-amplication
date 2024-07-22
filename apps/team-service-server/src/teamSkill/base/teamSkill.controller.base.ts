@@ -16,17 +16,35 @@ import * as errors from "../../errors";
 import { Request } from "express";
 import { plainToClass } from "class-transformer";
 import { ApiNestedQuery } from "../../decorators/api-nested-query.decorator";
+import * as nestAccessControl from "nest-access-control";
+import * as defaultAuthGuard from "../../auth/defaultAuth.guard";
 import { TeamSkillService } from "../teamSkill.service";
+import { AclValidateRequestInterceptor } from "../../interceptors/aclValidateRequest.interceptor";
+import { AclFilterResponseInterceptor } from "../../interceptors/aclFilterResponse.interceptor";
 import { TeamSkillCreateInput } from "./TeamSkillCreateInput";
 import { TeamSkill } from "./TeamSkill";
 import { TeamSkillFindManyArgs } from "./TeamSkillFindManyArgs";
 import { TeamSkillWhereUniqueInput } from "./TeamSkillWhereUniqueInput";
 import { TeamSkillUpdateInput } from "./TeamSkillUpdateInput";
 
+@swagger.ApiBearerAuth()
+@common.UseGuards(defaultAuthGuard.DefaultAuthGuard, nestAccessControl.ACGuard)
 export class TeamSkillControllerBase {
-  constructor(protected readonly service: TeamSkillService) {}
+  constructor(
+    protected readonly service: TeamSkillService,
+    protected readonly rolesBuilder: nestAccessControl.RolesBuilder
+  ) {}
+  @common.UseInterceptors(AclValidateRequestInterceptor)
   @common.Post()
   @swagger.ApiCreatedResponse({ type: TeamSkill })
+  @nestAccessControl.UseRoles({
+    resource: "TeamSkill",
+    action: "create",
+    possession: "any",
+  })
+  @swagger.ApiForbiddenResponse({
+    type: errors.ForbiddenException,
+  })
   async createTeamSkill(
     @common.Body() data: TeamSkillCreateInput
   ): Promise<TeamSkill> {
@@ -56,9 +74,18 @@ export class TeamSkillControllerBase {
     });
   }
 
+  @common.UseInterceptors(AclFilterResponseInterceptor)
   @common.Get()
   @swagger.ApiOkResponse({ type: [TeamSkill] })
   @ApiNestedQuery(TeamSkillFindManyArgs)
+  @nestAccessControl.UseRoles({
+    resource: "TeamSkill",
+    action: "read",
+    possession: "any",
+  })
+  @swagger.ApiForbiddenResponse({
+    type: errors.ForbiddenException,
+  })
   async teamSkills(@common.Req() request: Request): Promise<TeamSkill[]> {
     const args = plainToClass(TeamSkillFindManyArgs, request.query);
     return this.service.teamSkills({
@@ -79,9 +106,18 @@ export class TeamSkillControllerBase {
     });
   }
 
+  @common.UseInterceptors(AclFilterResponseInterceptor)
   @common.Get("/:id")
   @swagger.ApiOkResponse({ type: TeamSkill })
   @swagger.ApiNotFoundResponse({ type: errors.NotFoundException })
+  @nestAccessControl.UseRoles({
+    resource: "TeamSkill",
+    action: "read",
+    possession: "own",
+  })
+  @swagger.ApiForbiddenResponse({
+    type: errors.ForbiddenException,
+  })
   async teamSkill(
     @common.Param() params: TeamSkillWhereUniqueInput
   ): Promise<TeamSkill | null> {
@@ -109,9 +145,18 @@ export class TeamSkillControllerBase {
     return result;
   }
 
+  @common.UseInterceptors(AclValidateRequestInterceptor)
   @common.Patch("/:id")
   @swagger.ApiOkResponse({ type: TeamSkill })
   @swagger.ApiNotFoundResponse({ type: errors.NotFoundException })
+  @nestAccessControl.UseRoles({
+    resource: "TeamSkill",
+    action: "update",
+    possession: "any",
+  })
+  @swagger.ApiForbiddenResponse({
+    type: errors.ForbiddenException,
+  })
   async updateTeamSkill(
     @common.Param() params: TeamSkillWhereUniqueInput,
     @common.Body() data: TeamSkillUpdateInput
@@ -155,6 +200,14 @@ export class TeamSkillControllerBase {
   @common.Delete("/:id")
   @swagger.ApiOkResponse({ type: TeamSkill })
   @swagger.ApiNotFoundResponse({ type: errors.NotFoundException })
+  @nestAccessControl.UseRoles({
+    resource: "TeamSkill",
+    action: "delete",
+    possession: "any",
+  })
+  @swagger.ApiForbiddenResponse({
+    type: errors.ForbiddenException,
+  })
   async deleteTeamSkill(
     @common.Param() params: TeamSkillWhereUniqueInput
   ): Promise<TeamSkill | null> {

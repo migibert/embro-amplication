@@ -13,6 +13,12 @@ import * as graphql from "@nestjs/graphql";
 import { GraphQLError } from "graphql";
 import { isRecordNotFoundError } from "../../prisma.util";
 import { MetaQueryPayload } from "../../util/MetaQueryPayload";
+import * as nestAccessControl from "nest-access-control";
+import * as gqlACGuard from "../../auth/gqlAC.guard";
+import { GqlDefaultAuthGuard } from "../../auth/gqlDefaultAuth.guard";
+import * as common from "@nestjs/common";
+import { AclFilterResponseInterceptor } from "../../interceptors/aclFilterResponse.interceptor";
+import { AclValidateRequestInterceptor } from "../../interceptors/aclValidateRequest.interceptor";
 import { Collaborator } from "./Collaborator";
 import { CollaboratorCountArgs } from "./CollaboratorCountArgs";
 import { CollaboratorFindManyArgs } from "./CollaboratorFindManyArgs";
@@ -24,10 +30,20 @@ import { CollaboratorSkillFindManyArgs } from "../../collaboratorSkill/base/Coll
 import { CollaboratorSkill } from "../../collaboratorSkill/base/CollaboratorSkill";
 import { Team } from "../../team/base/Team";
 import { CollaboratorService } from "../collaborator.service";
+@common.UseGuards(GqlDefaultAuthGuard, gqlACGuard.GqlACGuard)
 @graphql.Resolver(() => Collaborator)
 export class CollaboratorResolverBase {
-  constructor(protected readonly service: CollaboratorService) {}
+  constructor(
+    protected readonly service: CollaboratorService,
+    protected readonly rolesBuilder: nestAccessControl.RolesBuilder
+  ) {}
 
+  @graphql.Query(() => MetaQueryPayload)
+  @nestAccessControl.UseRoles({
+    resource: "Collaborator",
+    action: "read",
+    possession: "any",
+  })
   async _collaboratorsMeta(
     @graphql.Args() args: CollaboratorCountArgs
   ): Promise<MetaQueryPayload> {
@@ -37,14 +53,26 @@ export class CollaboratorResolverBase {
     };
   }
 
+  @common.UseInterceptors(AclFilterResponseInterceptor)
   @graphql.Query(() => [Collaborator])
+  @nestAccessControl.UseRoles({
+    resource: "Collaborator",
+    action: "read",
+    possession: "any",
+  })
   async collaborators(
     @graphql.Args() args: CollaboratorFindManyArgs
   ): Promise<Collaborator[]> {
     return this.service.collaborators(args);
   }
 
+  @common.UseInterceptors(AclFilterResponseInterceptor)
   @graphql.Query(() => Collaborator, { nullable: true })
+  @nestAccessControl.UseRoles({
+    resource: "Collaborator",
+    action: "read",
+    possession: "own",
+  })
   async collaborator(
     @graphql.Args() args: CollaboratorFindUniqueArgs
   ): Promise<Collaborator | null> {
@@ -55,7 +83,13 @@ export class CollaboratorResolverBase {
     return result;
   }
 
+  @common.UseInterceptors(AclValidateRequestInterceptor)
   @graphql.Mutation(() => Collaborator)
+  @nestAccessControl.UseRoles({
+    resource: "Collaborator",
+    action: "create",
+    possession: "any",
+  })
   async createCollaborator(
     @graphql.Args() args: CreateCollaboratorArgs
   ): Promise<Collaborator> {
@@ -73,7 +107,13 @@ export class CollaboratorResolverBase {
     });
   }
 
+  @common.UseInterceptors(AclValidateRequestInterceptor)
   @graphql.Mutation(() => Collaborator)
+  @nestAccessControl.UseRoles({
+    resource: "Collaborator",
+    action: "update",
+    possession: "any",
+  })
   async updateCollaborator(
     @graphql.Args() args: UpdateCollaboratorArgs
   ): Promise<Collaborator | null> {
@@ -101,6 +141,11 @@ export class CollaboratorResolverBase {
   }
 
   @graphql.Mutation(() => Collaborator)
+  @nestAccessControl.UseRoles({
+    resource: "Collaborator",
+    action: "delete",
+    possession: "any",
+  })
   async deleteCollaborator(
     @graphql.Args() args: DeleteCollaboratorArgs
   ): Promise<Collaborator | null> {
@@ -116,8 +161,14 @@ export class CollaboratorResolverBase {
     }
   }
 
+  @common.UseInterceptors(AclFilterResponseInterceptor)
   @graphql.ResolveField(() => [CollaboratorSkill], {
     name: "collaboratorSkills",
+  })
+  @nestAccessControl.UseRoles({
+    resource: "CollaboratorSkill",
+    action: "read",
+    possession: "any",
   })
   async findCollaboratorSkills(
     @graphql.Parent() parent: Collaborator,
@@ -132,9 +183,15 @@ export class CollaboratorResolverBase {
     return results;
   }
 
+  @common.UseInterceptors(AclFilterResponseInterceptor)
   @graphql.ResolveField(() => Team, {
     nullable: true,
     name: "team",
+  })
+  @nestAccessControl.UseRoles({
+    resource: "Team",
+    action: "read",
+    possession: "any",
   })
   async getTeam(@graphql.Parent() parent: Collaborator): Promise<Team | null> {
     const result = await this.service.getTeam(parent.id);

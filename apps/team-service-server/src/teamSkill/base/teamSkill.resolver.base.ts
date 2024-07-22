@@ -13,6 +13,12 @@ import * as graphql from "@nestjs/graphql";
 import { GraphQLError } from "graphql";
 import { isRecordNotFoundError } from "../../prisma.util";
 import { MetaQueryPayload } from "../../util/MetaQueryPayload";
+import * as nestAccessControl from "nest-access-control";
+import * as gqlACGuard from "../../auth/gqlAC.guard";
+import { GqlDefaultAuthGuard } from "../../auth/gqlDefaultAuth.guard";
+import * as common from "@nestjs/common";
+import { AclFilterResponseInterceptor } from "../../interceptors/aclFilterResponse.interceptor";
+import { AclValidateRequestInterceptor } from "../../interceptors/aclValidateRequest.interceptor";
 import { TeamSkill } from "./TeamSkill";
 import { TeamSkillCountArgs } from "./TeamSkillCountArgs";
 import { TeamSkillFindManyArgs } from "./TeamSkillFindManyArgs";
@@ -22,10 +28,20 @@ import { UpdateTeamSkillArgs } from "./UpdateTeamSkillArgs";
 import { DeleteTeamSkillArgs } from "./DeleteTeamSkillArgs";
 import { Team } from "../../team/base/Team";
 import { TeamSkillService } from "../teamSkill.service";
+@common.UseGuards(GqlDefaultAuthGuard, gqlACGuard.GqlACGuard)
 @graphql.Resolver(() => TeamSkill)
 export class TeamSkillResolverBase {
-  constructor(protected readonly service: TeamSkillService) {}
+  constructor(
+    protected readonly service: TeamSkillService,
+    protected readonly rolesBuilder: nestAccessControl.RolesBuilder
+  ) {}
 
+  @graphql.Query(() => MetaQueryPayload)
+  @nestAccessControl.UseRoles({
+    resource: "TeamSkill",
+    action: "read",
+    possession: "any",
+  })
   async _teamSkillsMeta(
     @graphql.Args() args: TeamSkillCountArgs
   ): Promise<MetaQueryPayload> {
@@ -35,14 +51,26 @@ export class TeamSkillResolverBase {
     };
   }
 
+  @common.UseInterceptors(AclFilterResponseInterceptor)
   @graphql.Query(() => [TeamSkill])
+  @nestAccessControl.UseRoles({
+    resource: "TeamSkill",
+    action: "read",
+    possession: "any",
+  })
   async teamSkills(
     @graphql.Args() args: TeamSkillFindManyArgs
   ): Promise<TeamSkill[]> {
     return this.service.teamSkills(args);
   }
 
+  @common.UseInterceptors(AclFilterResponseInterceptor)
   @graphql.Query(() => TeamSkill, { nullable: true })
+  @nestAccessControl.UseRoles({
+    resource: "TeamSkill",
+    action: "read",
+    possession: "own",
+  })
   async teamSkill(
     @graphql.Args() args: TeamSkillFindUniqueArgs
   ): Promise<TeamSkill | null> {
@@ -53,7 +81,13 @@ export class TeamSkillResolverBase {
     return result;
   }
 
+  @common.UseInterceptors(AclValidateRequestInterceptor)
   @graphql.Mutation(() => TeamSkill)
+  @nestAccessControl.UseRoles({
+    resource: "TeamSkill",
+    action: "create",
+    possession: "any",
+  })
   async createTeamSkill(
     @graphql.Args() args: CreateTeamSkillArgs
   ): Promise<TeamSkill> {
@@ -71,7 +105,13 @@ export class TeamSkillResolverBase {
     });
   }
 
+  @common.UseInterceptors(AclValidateRequestInterceptor)
   @graphql.Mutation(() => TeamSkill)
+  @nestAccessControl.UseRoles({
+    resource: "TeamSkill",
+    action: "update",
+    possession: "any",
+  })
   async updateTeamSkill(
     @graphql.Args() args: UpdateTeamSkillArgs
   ): Promise<TeamSkill | null> {
@@ -99,6 +139,11 @@ export class TeamSkillResolverBase {
   }
 
   @graphql.Mutation(() => TeamSkill)
+  @nestAccessControl.UseRoles({
+    resource: "TeamSkill",
+    action: "delete",
+    possession: "any",
+  })
   async deleteTeamSkill(
     @graphql.Args() args: DeleteTeamSkillArgs
   ): Promise<TeamSkill | null> {
@@ -114,9 +159,15 @@ export class TeamSkillResolverBase {
     }
   }
 
+  @common.UseInterceptors(AclFilterResponseInterceptor)
   @graphql.ResolveField(() => Team, {
     nullable: true,
     name: "team",
+  })
+  @nestAccessControl.UseRoles({
+    resource: "Team",
+    action: "read",
+    possession: "any",
   })
   async getTeam(@graphql.Parent() parent: TeamSkill): Promise<Team | null> {
     const result = await this.service.getTeam(parent.id);
