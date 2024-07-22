@@ -16,17 +16,35 @@ import * as errors from "../../errors";
 import { Request } from "express";
 import { plainToClass } from "class-transformer";
 import { ApiNestedQuery } from "../../decorators/api-nested-query.decorator";
+import * as nestAccessControl from "nest-access-control";
+import * as defaultAuthGuard from "../../auth/defaultAuth.guard";
 import { CollaboratorSkillService } from "../collaboratorSkill.service";
+import { AclValidateRequestInterceptor } from "../../interceptors/aclValidateRequest.interceptor";
+import { AclFilterResponseInterceptor } from "../../interceptors/aclFilterResponse.interceptor";
 import { CollaboratorSkillCreateInput } from "./CollaboratorSkillCreateInput";
 import { CollaboratorSkill } from "./CollaboratorSkill";
 import { CollaboratorSkillFindManyArgs } from "./CollaboratorSkillFindManyArgs";
 import { CollaboratorSkillWhereUniqueInput } from "./CollaboratorSkillWhereUniqueInput";
 import { CollaboratorSkillUpdateInput } from "./CollaboratorSkillUpdateInput";
 
+@swagger.ApiBearerAuth()
+@common.UseGuards(defaultAuthGuard.DefaultAuthGuard, nestAccessControl.ACGuard)
 export class CollaboratorSkillControllerBase {
-  constructor(protected readonly service: CollaboratorSkillService) {}
+  constructor(
+    protected readonly service: CollaboratorSkillService,
+    protected readonly rolesBuilder: nestAccessControl.RolesBuilder
+  ) {}
+  @common.UseInterceptors(AclValidateRequestInterceptor)
   @common.Post()
   @swagger.ApiCreatedResponse({ type: CollaboratorSkill })
+  @nestAccessControl.UseRoles({
+    resource: "CollaboratorSkill",
+    action: "create",
+    possession: "any",
+  })
+  @swagger.ApiForbiddenResponse({
+    type: errors.ForbiddenException,
+  })
   async createCollaboratorSkill(
     @common.Body() data: CollaboratorSkillCreateInput
   ): Promise<CollaboratorSkill> {
@@ -56,9 +74,18 @@ export class CollaboratorSkillControllerBase {
     });
   }
 
+  @common.UseInterceptors(AclFilterResponseInterceptor)
   @common.Get()
   @swagger.ApiOkResponse({ type: [CollaboratorSkill] })
   @ApiNestedQuery(CollaboratorSkillFindManyArgs)
+  @nestAccessControl.UseRoles({
+    resource: "CollaboratorSkill",
+    action: "read",
+    possession: "any",
+  })
+  @swagger.ApiForbiddenResponse({
+    type: errors.ForbiddenException,
+  })
   async collaboratorSkills(
     @common.Req() request: Request
   ): Promise<CollaboratorSkill[]> {
@@ -81,9 +108,18 @@ export class CollaboratorSkillControllerBase {
     });
   }
 
+  @common.UseInterceptors(AclFilterResponseInterceptor)
   @common.Get("/:id")
   @swagger.ApiOkResponse({ type: CollaboratorSkill })
   @swagger.ApiNotFoundResponse({ type: errors.NotFoundException })
+  @nestAccessControl.UseRoles({
+    resource: "CollaboratorSkill",
+    action: "read",
+    possession: "own",
+  })
+  @swagger.ApiForbiddenResponse({
+    type: errors.ForbiddenException,
+  })
   async collaboratorSkill(
     @common.Param() params: CollaboratorSkillWhereUniqueInput
   ): Promise<CollaboratorSkill | null> {
@@ -111,9 +147,18 @@ export class CollaboratorSkillControllerBase {
     return result;
   }
 
+  @common.UseInterceptors(AclValidateRequestInterceptor)
   @common.Patch("/:id")
   @swagger.ApiOkResponse({ type: CollaboratorSkill })
   @swagger.ApiNotFoundResponse({ type: errors.NotFoundException })
+  @nestAccessControl.UseRoles({
+    resource: "CollaboratorSkill",
+    action: "update",
+    possession: "any",
+  })
+  @swagger.ApiForbiddenResponse({
+    type: errors.ForbiddenException,
+  })
   async updateCollaboratorSkill(
     @common.Param() params: CollaboratorSkillWhereUniqueInput,
     @common.Body() data: CollaboratorSkillUpdateInput
@@ -157,6 +202,14 @@ export class CollaboratorSkillControllerBase {
   @common.Delete("/:id")
   @swagger.ApiOkResponse({ type: CollaboratorSkill })
   @swagger.ApiNotFoundResponse({ type: errors.NotFoundException })
+  @nestAccessControl.UseRoles({
+    resource: "CollaboratorSkill",
+    action: "delete",
+    possession: "any",
+  })
+  @swagger.ApiForbiddenResponse({
+    type: errors.ForbiddenException,
+  })
   async deleteCollaboratorSkill(
     @common.Param() params: CollaboratorSkillWhereUniqueInput
   ): Promise<CollaboratorSkill | null> {

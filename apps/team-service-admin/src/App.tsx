@@ -21,6 +21,22 @@ import { TeamSkillList } from "./teamSkill/TeamSkillList";
 import { TeamSkillCreate } from "./teamSkill/TeamSkillCreate";
 import { TeamSkillEdit } from "./teamSkill/TeamSkillEdit";
 import { TeamSkillShow } from "./teamSkill/TeamSkillShow";
+import { CategoryList } from "./category/CategoryList";
+import { CategoryCreate } from "./category/CategoryCreate";
+import { CategoryEdit } from "./category/CategoryEdit";
+import { CategoryShow } from "./category/CategoryShow";
+import { SkillList } from "./skill/SkillList";
+import { SkillCreate } from "./skill/SkillCreate";
+import { SkillEdit } from "./skill/SkillEdit";
+import { SkillShow } from "./skill/SkillShow";
+import { RoleList } from "./role/RoleList";
+import { RoleCreate } from "./role/RoleCreate";
+import { RoleEdit } from "./role/RoleEdit";
+import { RoleShow } from "./role/RoleShow";
+import { UserList } from "./user/UserList";
+import { UserCreate } from "./user/UserCreate";
+import { UserEdit } from "./user/UserEdit";
+import { UserShow } from "./user/UserShow";
 import { jwtAuthProvider } from "./auth-provider/ra-auth-jwt";
 
 const App = (): React.ReactElement => {
@@ -74,6 +90,34 @@ const App = (): React.ReactElement => {
           edit={TeamSkillEdit}
           create={TeamSkillCreate}
           show={TeamSkillShow}
+        />
+        <Resource
+          name="Category"
+          list={CategoryList}
+          edit={CategoryEdit}
+          create={CategoryCreate}
+          show={CategoryShow}
+        />
+        <Resource
+          name="Skill"
+          list={SkillList}
+          edit={SkillEdit}
+          create={SkillCreate}
+          show={SkillShow}
+        />
+        <Resource
+          name="Role"
+          list={RoleList}
+          edit={RoleEdit}
+          create={RoleCreate}
+          show={RoleShow}
+        />
+        <Resource
+          name="User"
+          list={UserList}
+          edit={UserEdit}
+          create={UserCreate}
+          show={UserShow}
         />
       </Admin>
     </div>
